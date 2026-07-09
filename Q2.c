@@ -3,63 +3,112 @@
 
 struct Node {
     int data;
-    struct Node* next;
+    struct Node *next;
 };
 
-int main() {
-    int n;
-    printf("Enter the number of nodes: ");
-    scanf("%d", &n);
-
-    struct Node *head = NULL, *tail = NULL;
-    
-    for (int i = 0; i < n; i++) {
-        struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
-        
-        printf("Enter data for node %d: ", i + 1);
-        scanf("%d", &newNode->data);
+void createNode(struct Node **head, struct Node **tail, int value) {
+    if (*head == NULL) {
+        *head = (struct Node*)malloc(sizeof(struct Node));
+        (*head)->data = value;
+        (*head)->next = NULL;
+        *tail = *head;
+    } else {
+        struct Node *newNode = (struct Node*)malloc(sizeof(struct Node));
+        newNode->data = value;
         newNode->next = NULL;
+        (*tail)->next = newNode;
+        *tail = newNode;
+    }
+}
 
-        if (head == NULL) {
-            head = newNode;
-            tail = newNode;
-        } else {
-            tail->next = newNode;
-            tail = newNode;
-        } 
+void deleteNode(struct Node **head, struct Node **tail, int value) {
+    struct Node *current = *head;
+    struct Node *previous = NULL;
+
+    while (current != NULL) {
+        if (current->data == value) {
+            if (previous == NULL) {
+                *head = current->next;
+            } else {
+                previous->next = current->next;
+            }
+
+            if (current == *tail) {
+                *tail = previous;
+            }
+
+            free(current);
+            return;
+        }
+
+        previous = current;
+        current = current->next;
     }
 
-    printf("The linked list is: ");
-    struct Node* current = head;
+    printf("Node not found.\n");
+}
+
+void displayList(struct Node *head) {
+    struct Node *current = head;
+
     while (current != NULL) {
         printf("%d ", current->data);
         current = current->next;
     }
 
-    int choice;
-    printf("Select operation: (insert - 1/delete - 2): ");
-    scanf("%d", &choice);
+    printf("\n");
+}
 
-    if (choice == 1) {
-        struct Node *newNode = (struct Node*)malloc(sizeof(struct Node));
-        printf("Enter data for new node; ");
-        scanf("%d", &newNode->data);
-        newNode->next = NULL;
-        tail->next = newNode;
-        tail = newNode;
-    } else if (choice == 2) {
-        struct Node* temp = head;
-        head = head->next;
-        free(temp);
-    } else {
-        printf("Invalid choice.");
+int main() {
+    struct Node *head = NULL;
+    struct Node *tail = NULL;
+
+    int n;
+    printf("Enter the number of nodes: ");
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        int value;
+        printf("Enter value for node %d: ", i + 1);
+        scanf("%d", &value);
+        createNode(&head, &tail, value);
     }
 
-    while (head != NULL) {
-        struct Node *temp = head;
-        head = head->next;
-        free(temp);
-    }
-    
+    int choice = 0;
+
+    do {
+        printf("1. Display List\n2. Delete Node\n3. Insert Node\n4. Exit\nEnter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                displayList(head);
+                break;
+
+            case 2: {
+                int value;
+                printf("Enter value for deletion: ");
+                scanf("%d", &value);
+                deleteNode(&head, &tail, value);
+                break;
+            }
+
+            case 3: {
+                int value;
+                printf("Enter value for insertion: ");
+                scanf("%d", &value);
+                createNode(&head, &tail, value);
+                break;
+            }
+
+            case 4:
+                break;
+
+            default:
+                printf("Invalid choice.\n");
+                break;
+        }
+    } while (choice != 4);
+
     return 0;
 }
